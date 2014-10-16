@@ -1,0 +1,83 @@
+﻿<Window x:Class="TakeSnapsWithWebcamUsingWpfMvvm.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:video="clr-namespace:TakeSnapsWithWebcamUsingWpfMvvm.Video"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:command="http://www.galasoft.ch/mvvmlight"
+        xmlns:cmdBehavior="clr-namespace:TakeSnapsWithWebcamUsingWpfMvvm.CmdBehavior"
+        Title="MainWindow"
+        Height="800"
+        Width="600">
+    <Window.DataContext>
+        <Binding Source="{StaticResource Locator}"
+                 Path="Main" />
+    </Window.DataContext>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <command:EventToCommand Command="{Binding Mode=OneWay, Path=LoadedCommand}"
+                                    PassEventArgsToCommand="False" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Column="0"
+                   Grid.Row="0"
+                   Text="Select Video Device Source: "
+                   Margin="20" />
+        <ComboBox Grid.Column="1"
+                  Grid.Row="0"
+                  ItemsSource="{Binding MediaDeviceList}"
+                  DisplayMemberPath="DisplayName"
+                  SelectedValuePath="UsbString"
+                  SelectedItem="{Binding SelectedVideoDevice}"
+                  Width="200"
+                  HorizontalAlignment="Left"
+                  VerticalAlignment="Center"
+                  Margin="0,20,20,20" />
+        <TextBlock Grid.Column="0"
+                   Grid.Row="1"
+                   Text="Selected Device Preview:"
+                   Margin="20,20,20,5" />
+        <video:WebcamDevice Grid.Row="2"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="2"
+                            Margin="20,0,20,20"
+                            x:Name="CameraVideoDeviceControl"
+                            VideoPreviewWidth="{Binding VideoPreviewWidth}"
+                            VideoPreviewHeight="{Binding VideoPreviewHeight}"
+                            VideoSourceId="{Binding SelectedVideoDevice, Converter={StaticResource MediaInformationConverter}}"
+                            SnapshotBitmap="{Binding SnapshotBitmap, Mode=TwoWay}" />
+        <Button Grid.Row="3"
+                Margin="20,20,20,5"
+                Grid.Column="0"
+                Content="Take Snapshot">
+            <cmdBehavior:CommandBehaviorCollection.Behaviors>
+                <cmdBehavior:BehaviorBinding Event="Click"
+                                             Command="{Binding TakeSnapshot, ElementName=CameraVideoDeviceControl}" />
+                <cmdBehavior:BehaviorBinding Event="Click"
+                                             Command="{Binding SnapshotCommand}" />
+            </cmdBehavior:CommandBehaviorCollection.Behaviors>
+        </Button>
+        <Image Source="{Binding SnapshotTaken}"
+               HorizontalAlignment="Left"
+               Grid.Row="4"
+               Grid.Column="0"
+               Grid.ColumnSpan="2"
+               VerticalAlignment="Top"
+               Width="320"
+               Height="240"
+               Margin="20,0,20,20" />
+    </Grid>
+</Window>
