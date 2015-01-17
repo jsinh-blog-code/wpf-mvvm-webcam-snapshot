@@ -2,16 +2,14 @@ namespace TakeSnapsWithWebcamUsingWpfMvvm.ViewModel
 {
     #region Namespace
 
-    using System;
     using System.Collections.Generic;
     using System.Drawing;
     using System.Drawing.Imaging;
     using System.IO;
     using System.Windows.Media;
-    using System.Windows.Media.Imaging;
 
     using GalaSoft.MvvmLight;
-    using GalaSoft.MvvmLight.Command;
+    using GalaSoft.MvvmLight.CommandWpf;
 
     using TakeSnapsWithWebcamUsingWpfMvvm.Video;
 
