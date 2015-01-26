@@ -10,8 +10,7 @@
              Loaded="WebcamDeviceOnLoaded"
              Unloaded="WebcamDeviceOnUnloaded">
     <Grid>
-        <Grid x:Name="NoVideoSourceGrid"
-              Margin="10">
+        <Grid x:Name="NoVideoSourceGrid">
             <Border BorderBrush="DimGray"
                     BorderThickness="1">
                 <TextBlock x:Name="NoVideoSourceMessage"
@@ -23,7 +22,6 @@
             </Border>
         </Grid>
         <WindowsFormsHost x:Name="VideoSourceWindowsFormsHost"
-                          Margin="10"
                           Background="Transparent">
             <controls:VideoSourcePlayer x:Name="VideoSourcePlayer" />
         </WindowsFormsHost>
