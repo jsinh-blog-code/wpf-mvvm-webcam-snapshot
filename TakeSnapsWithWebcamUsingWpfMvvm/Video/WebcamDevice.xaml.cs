@@ -4,10 +4,12 @@
 
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Drawing;
     using System.Globalization;
     using System.Linq;
     using System.Windows;
+    using System.Windows.Controls;
     using System.Windows.Input;
 
     using AForge.Video.DirectShow;
@@ -27,12 +29,12 @@
         /// <summary>
         /// Dependency property for video display width.
         /// </summary>
-        public static readonly DependencyProperty VideoPreviewWidthProperty = DependencyProperty.Register("VideoPreviewWidth", typeof(int), typeof(WebcamDevice), new PropertyMetadata(VideoPreviewWidthPropertyChangedCallback));
+        public static readonly DependencyProperty VideoPreviewWidthProperty = DependencyProperty.Register("VideoPreviewWidth", typeof(double), typeof(WebcamDevice), new PropertyMetadata(VideoPreviewWidthPropertyChangedCallback));
 
         /// <summary>
         /// Dependency property for video display height.
         /// </summary>
-        public static readonly DependencyProperty VideoPreviewHeightProperty = DependencyProperty.Register("VideoPreviewHeight", typeof(int), typeof(WebcamDevice), new PropertyMetadata(VideoPreviewHeightPropertyChangedCallback));
+        public static readonly DependencyProperty VideoPreviewHeightProperty = DependencyProperty.Register("VideoPreviewHeight", typeof(double), typeof(WebcamDevice), new PropertyMetadata(VideoPreviewHeightPropertyChangedCallback));
 
         /// <summary>
         /// Dependency property for video device source Id.
@@ -96,11 +98,12 @@
         /// <remarks>
         /// Important: Do not write any logic in dependency property stub.
         /// </remarks>
-        public int VideoPreviewWidth
+        [TypeConverter(typeof(LengthConverter))]
+        public double VideoPreviewWidth
         {
             get
             {
-                return (int)GetValue(VideoPreviewWidthProperty);
+                return (double)GetValue(VideoPreviewWidthProperty);
             }
 
             set
@@ -115,11 +118,12 @@
         /// <remarks>
         /// Important: Do not write any logic in dependency property stub.
         /// </remarks>
-        public int VideoPreviewHeight
+        [TypeConverter(typeof(LengthConverter))]
+        public double VideoPreviewHeight
         {
             get
             {
-                return (int)GetValue(VideoPreviewHeightProperty);
+                return (double)GetValue(VideoPreviewHeightProperty);
             }
 
             set
@@ -209,14 +213,29 @@
                     playerPoint = this.VideoSourcePlayer.PointToScreen(new Drawing.Point(this.VideoSourcePlayer.ClientRectangle.X, this.VideoSourcePlayer.ClientRectangle.Y));
                 }
 
-                using (var bitmap = new Bitmap(this.VideoPreviewWidth, this.VideoPreviewHeight))
+                if (double.IsNaN(this.VideoPreviewWidth) || double.IsNaN(this.VideoPreviewHeight))
+                {
+                    using (var bitmap = new Bitmap((int)this.VideoSourceWindowsFormsHost.ActualWidth, (int)this.VideoSourceWindowsFormsHost.ActualHeight))
+                    {
+                        using (var graphicsFromImage = Graphics.FromImage(bitmap))
+                        {
+                            graphicsFromImage.CopyFromScreen(playerPoint, Drawing.Point.Empty, new Drawing.Size((int)this.VideoSourceWindowsFormsHost.ActualWidth, (int)this.VideoSourceWindowsFormsHost.ActualHeight));
+                        }
+
+                        this.SnapshotBitmap = new Bitmap(bitmap);
+                    }
+                }
+                else
+                {
+                    using (var bitmap = new Bitmap((int)this.VideoPreviewWidth, (int)this.VideoPreviewHeight))
                 {
                     using (var graphicsFromImage = Graphics.FromImage(bitmap))
                     {
-                        graphicsFromImage.CopyFromScreen(playerPoint, Drawing.Point.Empty, new Drawing.Size(this.VideoPreviewWidth, this.VideoPreviewHeight));
+                        graphicsFromImage.CopyFromScreen(playerPoint, Drawing.Point.Empty, new Drawing.Size((int)this.VideoPreviewWidth, (int)this.VideoPreviewHeight));
                     }
 
                     this.SnapshotBitmap = new Bitmap(bitmap);
+                }
                 }
             }
             catch (Exception exception)
@@ -302,14 +321,22 @@
             {
                 return;
             }
-
+            
             if (null == eventArgs.NewValue)
             {
                 return;
             }
 
-            var newValue = (int)eventArgs.NewValue;
-            webCamDevice.SetVideoPlayerWidth(newValue);
+            var newValue = (double)eventArgs.NewValue;
+            if (double.IsNaN(newValue))
+            {
+                var parentControl = (webCamDevice.VisualParent as Grid);
+                webCamDevice.SetVideoPlayerWidth(null != parentControl ? parentControl.Width : newValue);
+            }
+            else
+            {
+                webCamDevice.SetVideoPlayerWidth(newValue);
+            }
         }
 
         /// <summary>
@@ -330,8 +357,16 @@
                 return;
             }
 
-            var newValue = (int)eventArgs.NewValue;
-            webCamDevice.SetVideoPlayerHeight(newValue);
+            var newValue = (double)eventArgs.NewValue;
+            if (double.IsNaN(newValue))
+            {
+                var parentControl = (webCamDevice.VisualParent as Grid);
+                webCamDevice.SetVideoPlayerHeight(null != parentControl ? parentControl.Height : newValue);
+            }
+            else
+            {
+                webCamDevice.SetVideoPlayerHeight(newValue);
+            }
         }
 
         /// <summary>
@@ -405,7 +440,7 @@
         /// Set video player width.
         /// </summary>
         /// <param name="newWidth">New width value.</param>
-        private void SetVideoPlayerWidth(int newWidth)
+        private void SetVideoPlayerWidth(double newWidth)
         {
             this.NoVideoSourceGrid.Width = newWidth;
             this.VideoSourceWindowsFormsHost.Width = newWidth;
@@ -415,7 +450,7 @@
         /// Set video player height.
         /// </summary>
         /// <param name="newHeight">New height value.</param>
-        private void SetVideoPlayerHeight(int newHeight)
+        private void SetVideoPlayerHeight(double newHeight)
         {
             this.NoVideoSourceGrid.Height = newHeight;
             this.VideoSourceWindowsFormsHost.Height = newHeight;

@@ -22,7 +22,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
@@ -48,17 +48,23 @@
                    Grid.Row="1"
                    Text="Selected Device Preview:"
                    Margin="20,20,20,5" />
-        <video:WebcamDevice Grid.Row="2"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Top"
-                            Grid.Column="0"
-                            Grid.ColumnSpan="2"
-                            Margin="20,0,20,20"
-                            x:Name="CameraVideoDeviceControl"
-                            VideoPreviewWidth="{Binding VideoPreviewWidth}"
-                            VideoPreviewHeight="{Binding VideoPreviewHeight}"
-                            VideoSourceId="{Binding SelectedVideoDevice, Converter={StaticResource MediaInformationConverter}}"
-                            SnapshotBitmap="{Binding SnapshotBitmap, Mode=TwoWay}" />
+        <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Width="Auto" Height="Auto" VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <video:WebcamDevice Grid.Row="0"
+                                Grid.Column="0"
+                                Margin="20,0,20,20"
+                                x:Name="CameraVideoDeviceControl"
+                                VideoPreviewWidth="Auto"
+                                VideoPreviewHeight="Auto"
+                                VideoSourceId="{Binding SelectedVideoDevice, Converter={StaticResource MediaInformationConverter}}"
+                                SnapshotBitmap="{Binding SnapshotBitmap, Mode=TwoWay}" />
+        </Grid>
+        
         <Button Grid.Row="3"
                 Margin="20,20,20,5"
                 Grid.Column="0"
