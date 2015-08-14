@@ -1,4 +1,4 @@
-WebcamSnapshotWpfMvvm
+WPF MVVM - WebCAM Snapshot Code / Sample
 =====================
 
-Sample for How to take preview USB webcam and take snapshot using AForge, MVVM and WPF
+Sample for How to preview USB webcam and take snapshot using AForge, MVVM and WPF
